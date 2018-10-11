@@ -16,7 +16,7 @@ allprojects {
 ### 2. Add the dependency:
 ```gralde
 dependencies {
-	        implementation 'com.github.DerTyp7214:ChangeLogLib:v1.1'
+	        implementation 'com.github.DerTyp7214:ChangeLogLib:<LATEST_VERSION>'
 	}
 ```
 
