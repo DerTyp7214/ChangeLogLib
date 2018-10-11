@@ -1,0 +1,1 @@
+[![](https://jitpack.io/v/DerTyp7214/ChangeLogLib.svg)](https://jitpack.io/#DerTyp7214/ChangeLogLib)
