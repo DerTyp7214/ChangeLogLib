@@ -78,7 +78,7 @@ class ChangeLog private constructor(private val context: Context, private val ve
 
     private fun getBuildConfigValue(context: Context, fieldName: String): Any? {
         return try {
-            val clazz = Class.forName(if (context.packageName.endsWith("debug")) context.packageName.replace(".debug", "") else context.packageName + ".BuildConfig")
+            val clazz = Class.forName("${if (context.packageName.endsWith(".debug")) context.packageName.replace(".debug", "") else context.packageName}.BuildConfig")
             val field = clazz.getField(fieldName)
             field.get(null)
         } catch (e: ClassNotFoundException) {
