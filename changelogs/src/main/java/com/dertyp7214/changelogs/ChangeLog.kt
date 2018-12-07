@@ -59,23 +59,27 @@ class ChangeLog private constructor(private val context: Context, private val ve
         if (dialog != null) dialog!!.show()
     }
 
-    fun showDialogOnVersionChange() {
+    fun showDialogOnVersionChange(): Boolean {
         val sharedPreferences = context.getSharedPreferences("changeLogDialogCache", Context.MODE_PRIVATE)
         val lastVersionName = sharedPreferences.getString("versionName", "null")
         val lastVersionCode = sharedPreferences.getInt("versionCode", -1)
         val versionCode = getBuildConfigValue(context, "VERSION_CODE") as Int
         val versionName = getBuildConfigValue(context, "VERSION_NAME") as String
 
-        if (lastVersionName == "null" && lastVersionCode == -1) {
+        val ret = if (lastVersionName == "null" && lastVersionCode == -1) {
             showDialog()
+            true
         } else if (lastVersionName != versionName || lastVersionCode < versionCode) {
             showDialog()
-        }
+            true
+        } else false
 
         sharedPreferences.edit()
                 .putInt("versionCode", versionCode)
                 .putString("versionName", versionName)
                 .apply()
+
+        return ret
     }
 
     private fun getBuildConfigValue(context: Context, fieldName: String): Any? {
