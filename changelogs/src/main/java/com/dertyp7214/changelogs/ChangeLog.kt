@@ -6,21 +6,26 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.support.annotation.ColorInt
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.webkit.WebView
 import com.afollestad.materialdialogs.MaterialDialog
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ChangeLog private constructor(private val context: Context, private val versions: List<Version>, private val linkColor: String, private val closeListeners: ArrayList<() -> Unit>) {
+class ChangeLog private constructor(private val context: Context, private val versions: List<Version>, private val linkColor: String, private val closeListeners: ArrayList<() -> Unit>, private val logger: Logger) {
     private var dialog: MaterialDialog? = null
 
     private fun buildHtml(): String {
         val stringBuilder = StringBuilder()
 
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.windowBackground, typedValue, true)
+        val textColor = if (isColorDark(typedValue.data)) Color.WHITE else Color.BLACK
+
         stringBuilder.append("<html>\n<head>\n<style type=\"text/css\">\n")
-                .append("* {\nword-wrap: break-word;\n}\na {\ncolor: #").append(linkColor)
-                .append(";\n}\nol {\n")
+                .append("* {\nword-wrap: break-word; background: #00000000; color: #${Integer.toHexString(textColor).substring(2)}\n}\na {\ncolor: #").append(linkColor)
+                .append(" !important;\n}\nol {\n")
                 .append("list-style-position: inside;\npadding-left: 0;\npadding-right: 0;\n}\n")
                 .append("li {\npadding-top: 8px;\n}\n</style>\n</head>\n<body>\n\n")
 
@@ -28,7 +33,11 @@ class ChangeLog private constructor(private val context: Context, private val ve
             stringBuilder.append(version.html)
 
         stringBuilder.append("</body>\n</html>")
-        return stringBuilder.toString()
+        val string = stringBuilder.toString()
+
+        logger.log("HTML", string)
+
+        return string
     }
 
     fun buildDialog(): ChangeLog {
@@ -43,6 +52,7 @@ class ChangeLog private constructor(private val context: Context, private val ve
 
         val webView = customView.findViewById<WebView>(R.id.web_view)
         webView.settings.javaScriptEnabled = true
+        webView.setBackgroundColor(Color.TRANSPARENT)
         webView.loadDataWithBaseURL(null, buildHtml(), mime, encoding, null)
         dialog = MaterialDialog.Builder(context)
                 .title(title)
@@ -66,6 +76,8 @@ class ChangeLog private constructor(private val context: Context, private val ve
         val versionCode = getBuildConfigValue(context, "VERSION_CODE") as Int
         val versionName = getBuildConfigValue(context, "VERSION_NAME") as String
 
+        logger.log("VERSIONS", "LastVersionName: $lastVersionName, LastVersionCode: $lastVersionCode, VersionName: $versionName, VersionCode: $versionCode")
+
         val ret = if (lastVersionName == "null" && lastVersionCode == -1) {
             showDialog()
             true
@@ -73,6 +85,8 @@ class ChangeLog private constructor(private val context: Context, private val ve
             showDialog()
             true
         } else false
+
+        logger.log("SHOWDIALOG", ret.toString())
 
         sharedPreferences.edit()
                 .putInt("versionCode", versionCode)
@@ -102,14 +116,30 @@ class ChangeLog private constructor(private val context: Context, private val ve
         }
     }
 
+    private fun isColorDark(color: Int): Boolean {
+        val darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
+        return darkness >= 0.5
+    }
+
+    interface Logger {
+        fun log(tag: String, message: String)
+        fun error(tag: String, error: Exception)
+    }
+
     class Builder(private val context: Context) {
 
         private val versions = ArrayList<Version>()
         private val listeners = ArrayList<() -> Unit>()
         private var linkColor = "FFFFFF"
+        private var logger: Logger? = null
 
         fun addVersion(version: Version): Builder {
             versions.add(version)
+            return this
+        }
+
+        fun attachLogger(logger: Logger): Builder {
+            this.logger = logger
             return this
         }
 
@@ -124,7 +154,10 @@ class ChangeLog private constructor(private val context: Context, private val ve
         }
 
         fun build(): ChangeLog {
-            return ChangeLog(context, versions, linkColor, listeners)
+            return ChangeLog(context, versions, linkColor, listeners, logger ?: object: Logger {
+                override fun log(tag: String, message: String) {}
+                override fun error(tag: String, error: Exception) {}
+            })
         }
 
         fun buildFromText(jsonChangeLogObject: String): ChangeLog {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 
 import com.dertyp7214.changelogs.ChangeLog
@@ -33,8 +34,22 @@ class MainActivity : Activity() {
                 .addCloseListener {
                     Toast.makeText(this, "CLOSE", Toast.LENGTH_LONG).show()
                 }
+                .attachLogger(object: ChangeLog.Logger {
+                    override fun log(tag: String, message: String) {
+                        Log.d(tag, message)
+                    }
+
+                    override fun error(tag: String, error: Exception) {
+                        Log.d(tag, error.message)
+                        error.printStackTrace()
+                    }
+                })
                 .build()
-        changeLog.buildDialog("Changes").showDialog()
+
+        if (changeLog.buildDialog("Changes").showDialogOnVersionChange())
+            Log.d("DIALOGSHOWN", "TRUE")
+        else
+            Log.d("DIALOGSHOWN", "FALSE")
 
         val changeLogFromText = ChangeLog.Builder(this)
                 .buildFromText("""{title: "Test", linkColor: ${Color.RED}, versions: [
