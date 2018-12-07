@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.Toast
 
 import com.dertyp7214.changelogs.ChangeLog
 import com.dertyp7214.changelogs.Version
@@ -29,8 +30,11 @@ class MainActivity : Activity() {
                         .addChange(Version.Change(Version.Change.ChangeType.ADD, "Add stuff"))
                         .build())
                 .setLinkColor(Color.RED)
+                .addCloseListener {
+                    Toast.makeText(this, "CLOSE", Toast.LENGTH_LONG).show()
+                }
                 .build()
-        changeLog.buildDialog("Changes")
+        changeLog.buildDialog("Changes").showDialog()
 
         val changeLogFromText = ChangeLog.Builder(this)
                 .buildFromText("""{title: "Test", linkColor: ${Color.RED}, versions: [
@@ -40,6 +44,5 @@ class MainActivity : Activity() {
                     {versionCode: "100", versionName: "1", changes: [
                            {type: "FIX", change: "Fix stuff"},
                            {type: "add", change: "Add stuff"}]}]}""".trimMargin())
-        changeLogFromText.showDialogOnVersionChange()
     }
 }

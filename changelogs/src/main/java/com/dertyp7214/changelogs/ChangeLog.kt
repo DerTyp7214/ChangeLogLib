@@ -11,9 +11,8 @@ import android.webkit.WebView
 import com.afollestad.materialdialogs.MaterialDialog
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
-class ChangeLog private constructor(private val context: Context, private val versions: List<Version>, private val linkColor: String) {
+class ChangeLog private constructor(private val context: Context, private val versions: List<Version>, private val linkColor: String, private val closeListeners: ArrayList<() -> Unit>) {
     private var dialog: MaterialDialog? = null
 
     private fun buildHtml(): String {
@@ -49,6 +48,9 @@ class ChangeLog private constructor(private val context: Context, private val ve
                 .title(title)
                 .customView(customView, false)
                 .positiveText(android.R.string.ok)
+                .dismissListener {
+                    closeListeners.forEach { it() }
+                }
                 .build()
         return this
     }
@@ -99,10 +101,16 @@ class ChangeLog private constructor(private val context: Context, private val ve
     class Builder(private val context: Context) {
 
         private val versions = ArrayList<Version>()
+        private val listeners = ArrayList<() -> Unit>()
         private var linkColor = "FFFFFF"
 
         fun addVersion(version: Version): Builder {
             versions.add(version)
+            return this
+        }
+
+        fun addCloseListener(closeListener: () -> Unit): Builder {
+            listeners.add(closeListener)
             return this
         }
 
@@ -112,7 +120,7 @@ class ChangeLog private constructor(private val context: Context, private val ve
         }
 
         fun build(): ChangeLog {
-            return ChangeLog(context, versions, linkColor)
+            return ChangeLog(context, versions, linkColor, listeners)
         }
 
         fun buildFromText(jsonChangeLogObject: String): ChangeLog {
