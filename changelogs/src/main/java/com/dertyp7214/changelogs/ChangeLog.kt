@@ -73,8 +73,16 @@ class ChangeLog private constructor(private val context: Context, private val ve
         val sharedPreferences = context.getSharedPreferences("changeLogDialogCache", Context.MODE_PRIVATE)
         val lastVersionName = sharedPreferences.getString("versionName", "null")
         val lastVersionCode = sharedPreferences.getInt("versionCode", -1)
-        val versionCode = getBuildConfigValue(context, "VERSION_CODE") as Int
-        val versionName = getBuildConfigValue(context, "VERSION_NAME") as String
+        val versionCode = try {
+            getBuildConfigValue(context, "VERSION_CODE") as Int
+        } catch (e: Exception) {
+            -1
+        }
+        val versionName = try {
+            getBuildConfigValue(context, "VERSION_NAME") as String
+        } catch (e: Exception) {
+            "null"
+        }
 
         logger.log("VERSIONS", "LastVersionName: $lastVersionName, LastVersionCode: $lastVersionCode, VersionName: $versionName, VersionCode: $versionCode")
 
@@ -154,7 +162,7 @@ class ChangeLog private constructor(private val context: Context, private val ve
         }
 
         fun build(): ChangeLog {
-            return ChangeLog(context, versions, linkColor, listeners, logger ?: object: Logger {
+            return ChangeLog(context, versions, linkColor, listeners, logger ?: object : Logger {
                 override fun log(tag: String, message: String) {}
                 override fun error(tag: String, error: Exception) {}
             })
