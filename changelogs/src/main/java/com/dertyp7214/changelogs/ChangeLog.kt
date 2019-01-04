@@ -70,18 +70,22 @@ class ChangeLog private constructor(private val context: Context, private val ve
     }
 
     fun showDialogOnVersionChange(): Boolean {
+        return showDialogOnVersionChange(-1, "null")
+    }
+
+    fun showDialogOnVersionChange(VERSION_CODE: Int, VERSION_NAME: String): Boolean {
         val sharedPreferences = context.getSharedPreferences("changeLogDialogCache", Context.MODE_PRIVATE)
         val lastVersionName = sharedPreferences.getString("versionName", "null")
         val lastVersionCode = sharedPreferences.getInt("versionCode", -1)
         val versionCode = try {
             getBuildConfigValue(context, "VERSION_CODE") as Int
         } catch (e: Exception) {
-            -1
+            VERSION_CODE
         }
         val versionName = try {
             getBuildConfigValue(context, "VERSION_NAME") as String
         } catch (e: Exception) {
-            "null"
+            VERSION_NAME
         }
 
         logger.log("VERSIONS", "LastVersionName: $lastVersionName, LastVersionCode: $lastVersionCode, VersionName: $versionName, VersionCode: $versionCode")

@@ -24,6 +24,6 @@ public class Test extends AppCompatActivity {
                         return null;
                     }
                 }).build();
-        changeLog.showDialog();
+        changeLog.buildDialog().showDialogOnVersionChange();
     }
 }
