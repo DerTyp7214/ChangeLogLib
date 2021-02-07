@@ -19,9 +19,14 @@ class MainActivity : Activity() {
 
         val changeLog = ChangeLog.Builder(this)
                 .addVersion(Version.Builder(this)
+                        .setVersionName("3")
+                        .setVersionCode("300")
+                        .addChange(Version.Change(Version.Change.ChangeType.FIX, "Update to AndroidX"))
+                        .build())
+                .addVersion(Version.Builder(this)
                         .setVersionName("2")
                         .setVersionCode("200")
-                        .addChange(Version.Change(Version.Change.ChangeType.FIX, ChangeLog.generateLink("Fix stuff", "http://www.google.de/search?q=Fix%20stuff")))
+                        .addChange(Version.Change(Version.Change.ChangeType.FIX, ChangeLog.generateLink("Fix stuff", "https://www.google.de/search?q=Fix%20stuff")))
                         .addChange(Version.Change(Version.Change.ChangeType.ADD, "Add stuff"))
                         .build())
                 .addVersion(Version.Builder(this)
@@ -34,13 +39,13 @@ class MainActivity : Activity() {
                 .addCloseListener {
                     Toast.makeText(this, "CLOSE", Toast.LENGTH_LONG).show()
                 }
-                .attachLogger(object: ChangeLog.Logger {
+                .attachLogger(object : ChangeLog.Logger {
                     override fun log(tag: String, message: String) {
                         Log.d(tag, message)
                     }
 
                     override fun error(tag: String, error: Exception) {
-                        Log.d(tag, error.message)
+                        Log.d(tag, error.message ?: "")
                         error.printStackTrace()
                     }
                 })
@@ -54,7 +59,7 @@ class MainActivity : Activity() {
         val changeLogFromText = ChangeLog.Builder(this)
                 .buildFromText("""{title: "Test", linkColor: ${Color.RED}, versions: [
                     {versionCode: "200", versionName: "2", changes: [
-                           {type: "fix", change: "${ChangeLog.generateLink("Fix stuff", "http://www.google.de/search?q=Fix%20stuff")}"},
+                           {type: "fix", change: "${ChangeLog.generateLink("Fix stuff", "https://www.google.de/search?q=Fix%20stuff")}"},
                            {type: "ADD", change: "Add stuff"}]},
                     {versionCode: "100", versionName: "1", changes: [
                            {type: "FIX", change: "Fix stuff"},

@@ -5,13 +5,20 @@ package com.dertyp7214.changelogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.webkit.WebView
 import com.afollestad.materialdialogs.MaterialDialog
 import org.json.JSONArray
 import org.json.JSONObject
+import android.content.Intent
+import android.net.Uri
+
+import android.webkit.WebViewClient
+
+
+
 
 class ChangeLog private constructor(private val context: Context, private val versions: List<Version>, private val linkColor: String, private val closeListeners: ArrayList<() -> Unit>, private val logger: Logger) {
     private var dialog: MaterialDialog? = null
@@ -54,6 +61,17 @@ class ChangeLog private constructor(private val context: Context, private val ve
         webView.settings.javaScriptEnabled = true
         webView.setBackgroundColor(Color.TRANSPARENT)
         webView.loadDataWithBaseURL(null, buildHtml(), mime, encoding, null)
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                return if (url.startsWith("http://") || url.startsWith("https://")) {
+                    view.context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    true
+                } else {
+                    false
+                }
+            }
+        }
         dialog = MaterialDialog.Builder(context)
                 .title(title)
                 .customView(customView, false)
