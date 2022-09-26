@@ -4,6 +4,6 @@
     <string name="add">ADD</string>
     <string name="fix">FIX</string>
     <string name="remove">REMOVE</string>
-    <string name="improvemnt">IMPROVEMENT</string>
+    <string name="improvement">IMPROVEMENT</string>
     <string name="text_changes">Changes</string>
 </resources>

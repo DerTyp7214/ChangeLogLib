@@ -1,70 +1,75 @@
 package com.dertyp7214.changelogs
 
 import android.content.Context
-import java.util.*
 
-class Version private constructor(private val versionName: String, private val versionCode: String, private val changes: List<Change>, private val context: Context) {
+class Version private constructor(
+    val changes: List<Change>,
+    val versionName: String,
+    val versionCode: String
+) {
 
-    val html: String
-        get() {
-            val stringBuilder = StringBuilder()
-
-            stringBuilder.append("<h3>").append(context.getString(R.string.version)).append(" ")
-                    .append(versionName)
-            if (versionCode != "") stringBuilder.append(" (").append(versionCode).append(")")
-            stringBuilder.append("</h3>\n\n")
-            stringBuilder.append("<ol>\n")
-
-            for (change in changes)
-                stringBuilder.append("<li><b>").append(mapChangeType(change.type)).append(": </b>")
-                        .append(change.change).append("</li>\n")
-
-            stringBuilder.append("</ol>\n\n")
-            return stringBuilder.toString()
-        }
-
-    private fun mapChangeType(changeType: Change.ChangeType): String {
-        return when (changeType) {
-            Version.Change.ChangeType.ADD -> context.getString(R.string.add)
-            Version.Change.ChangeType.FIX -> context.getString(R.string.fix)
-            Version.Change.ChangeType.REMOVE -> context.getString(R.string.remove)
-            Version.Change.ChangeType.IMPROVEMENT -> context.getString(R.string.improvemnt)
-        }
+    companion object {
+        operator fun invoke(block: VersionBuilder.() -> Unit) =
+            VersionBuilder().also(block).build()
     }
 
-    class Builder(private val context: Context) {
+    class VersionBuilder internal constructor() {
+        private val changes = arrayListOf<Change>()
 
-        private val changeList = ArrayList<Change>()
-        private var versionName = ""
-        private var versionCode = ""
+        var versionName: String = ""
+        var versionCode: String = ""
 
-        fun addChange(change: Change): Builder {
-            changeList.add(change)
-            return this
-        }
+        fun addChange(block: Change.ChangeBuilder.() -> Unit) =
+            changes.add(Change(block))
 
-        fun setVersionName(versionName: String): Builder {
-            this.versionName = versionName
-            return this
-        }
-
-        fun setVersionCode(versionCode: String): Builder {
-            this.versionCode = versionCode
-            return this
-        }
-
-        fun build(): Version {
-            return Version(versionName, versionCode, changeList, context)
-        }
+        internal fun build() = Version(changes, versionName, versionCode)
     }
 
-    class Change(internal val type: ChangeType, internal val change: String) {
+    class Change private constructor(
+        val type: ChangeType,
+        val change: CharSequence,
+        internal val url: String?
+    ) {
+
+        companion object {
+            operator fun invoke(block: ChangeBuilder.() -> Unit) =
+                ChangeBuilder().also(block).build()
+        }
+
+        @Suppress("unused")
+        class ChangeBuilder internal constructor() {
+            var type: ChangeType = ChangeType.ADD
+            var change: CharSequence = ""
+
+            private var url: String? = null
+
+            fun addLink(text: String, url: String) {
+                change = text
+                this.url = url
+            }
+
+            fun add() = ChangeType.ADD
+            fun fix() = ChangeType.FIX
+            fun improvement() = ChangeType.IMPROVEMENT
+            fun remove() = ChangeType.REMOVE
+
+            internal fun build() = Change(type, change, url)
+        }
 
         enum class ChangeType {
             FIX,
             ADD,
             IMPROVEMENT,
-            REMOVE
+            REMOVE;
+
+            fun getName(context: Context): String {
+                return when (this) {
+                    ADD -> context.getString(R.string.add)
+                    FIX -> context.getString(R.string.fix)
+                    REMOVE -> context.getString(R.string.remove)
+                    IMPROVEMENT -> context.getString(R.string.improvement)
+                }
+            }
         }
     }
 }

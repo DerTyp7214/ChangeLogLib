@@ -1,7 +1,11 @@
 [![](https://jitpack.io/v/DerTyp7214/ChangeLogLib.svg)](https://jitpack.io/#DerTyp7214/ChangeLogLib)
 
-## To import the lib
+### Requirements
 
+You need mdc (`com.google.android.material:material`)
+Your theme have to extend from `Theme.Material3`
+
+## To import the lib
 
 ### 1. Add it in your root build.gradle at the end of repositories
 ```gradle
@@ -22,19 +26,34 @@ dependencies {
 
 ## Usage:
 
-```java
-ChangeLog changeLog = new ChangeLog.Builder(this)
-                .addVersion(new Version.Builder(this)
-                        .setVersionName("2.3")
-                        .setVersionCode("234")
-                        .addChange(new Version.Change(Version.Change.ChangeType.REMOVE, "Something"))
-                        .build())
-                .addVersion(new Version.Builder(this)
-                        .setVersionName("2.2")
-                        .setVersionCode("223")
-                        .addChange(new Version.Change(Version.Change.ChangeType.ADD, "Something"))
-                        .build())
-                .setLinkColor(Color.GREEN)
-                .build();
-        changeLog.buildDialog("Changes").showDialog();
+```kotlin
+val changelog = Changelog(this) {
+    addVersion {
+        versionName = "3"
+        versionCode = "300"
+
+        addChange {
+            type = add()
+                change = "Test"
+            }
+            addChange {
+            type = fix()
+            addLink("Test Link", "https://google.com")
+            }
+        }
+    addVersion {
+        versionName = "2"
+        versionCode = "200"
+
+        addChange {
+            type = fix()
+            change = "Fixed stuff"
+        }
+    }
+    onClose {
+        Log.d("ButtonId", "$it")
+    }
+}
+
+changelog.show()
 ```
