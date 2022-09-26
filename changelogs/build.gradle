@@ -13,6 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33
+        compileSdkVersion 33
         versionCode 7
         versionName version
 
@@ -21,12 +22,6 @@ android {
         }
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-    }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
     }
 
     buildTypes {
