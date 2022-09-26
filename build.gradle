@@ -6,6 +6,6 @@ plugins {
 }
 ext {
     groupName = 'com.github.dertyp7214'
-    versionCode = 7
-    versionName = '3.2'
+    versionCode = 8
+    versionName = '3.3'
 }
