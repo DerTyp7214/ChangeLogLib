@@ -17,8 +17,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
         }
         debug {
             debuggable true
@@ -37,7 +38,7 @@ android {
 
 dependencies {
     implementation project(path: ':changelogs')
-    //implementation 'com.github.DerTyp7214:ChangeLogLib:bb43aa7d1b'
+    //implementation 'com.github.DerTyp7214:ChangeLogLib:634426ab06'
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
