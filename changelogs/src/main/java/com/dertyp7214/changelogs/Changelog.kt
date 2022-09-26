@@ -22,6 +22,7 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
 import android.widget.LinearLayout.LayoutParams
 import android.widget.LinearLayout.VERTICAL
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.edit
 import com.dertyp7214.changelogs.core.dpToPxRounded
@@ -46,84 +47,95 @@ class Changelog private constructor(
     ) = MaterialAlertDialogBuilder(context)
         .setTitle(R.string.text_changes)
         .setCancelable(false)
-        .setView(LinearLayout(context).apply {
-            val paddings = 32.dpToPxRounded(context)
-            val top = 4.dpToPxRounded(context)
-            orientation = VERTICAL
-            layoutParams = LayoutParams(
-                MATCH_PARENT,
-                WRAP_CONTENT
-            )
-            setPadding(paddings, paddings / 4, paddings, paddings / 4)
+        .setView(ScrollView(context).apply {
+            isVerticalFadingEdgeEnabled = true
+            setFadingEdgeLength(150)
+            addView(LinearLayout(context).apply {
+                val paddings = 32.dpToPxRounded(context)
+                val top = 4.dpToPxRounded(context)
+                orientation = VERTICAL
+                layoutParams = LayoutParams(
+                    MATCH_PARENT,
+                    WRAP_CONTENT
+                )
+                setPadding(paddings, paddings / 4, paddings, paddings / 4)
 
-            versions.forEach { version ->
-                addView(LinearLayout(context).apply {
-                    orientation = VERTICAL
-                    layoutParams = LayoutParams(
-                        MATCH_PARENT,
-                        WRAP_CONTENT
-                    )
-                    setPadding(0, top * 2, 0, 0)
-
-                    addView(
-                        TextView(context).apply {
-                            appearance(context, R.style.TextAppearance_Material3_TitleMedium)
-                            text =
-                                "${version.versionName} ${if (version.versionCode.isNotBlank()) "(${version.versionCode})" else ""}"
-                        })
+                versions.forEach { version ->
                     addView(LinearLayout(context).apply {
                         orientation = VERTICAL
                         layoutParams = LayoutParams(
                             MATCH_PARENT,
                             WRAP_CONTENT
                         )
+                        setPadding(0, top * 2, 0, 0)
 
-                        version.changes.forEach { change ->
-                            addView(LinearLayout(context).apply {
-                                orientation = HORIZONTAL
-                                layoutParams = LayoutParams(
-                                    MATCH_PARENT,
-                                    WRAP_CONTENT
-                                )
-                                addView(
-                                    TextView(context).apply {
-                                        appearance(
-                                            context,
-                                            R.style.TextAppearance_Material3_BodyMedium
-                                        )
-                                        val spannable = SpannableStringBuilder()
-                                            .append(SpannableString("${change.type.getName(context)}: ").also {
-                                                it.setSpan(
-                                                    StyleSpan(BOLD),
-                                                    0,
-                                                    it.length,
-                                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                                                )
-                                            })
-                                            .append(SpannableString(change.change).also {
-                                                if (change.url != null) {
-                                                    it.setSpan(
-                                                        clickableSpan { customUrlHandler(change.url) },
-                                                        0,
-                                                        it.length,
-                                                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                                                    )
-                                                }
-                                            })
-                                        movementMethod = LinkMovementMethod.getInstance()
-                                        setText(spannable, TextView.BufferType.SPANNABLE)
-                                        layoutParams = LayoutParams(
-                                            WRAP_CONTENT,
-                                            WRAP_CONTENT
-                                        ).apply {
-                                            setMargins(0, top, 0, 0)
-                                        }
-                                    })
+                        addView(
+                            TextView(context).apply {
+                                appearance(context, R.style.TextAppearance_Material3_TitleMedium)
+                                text =
+                                    "${version.versionName} ${if (version.versionCode.isNotBlank()) "(${version.versionCode})" else ""}"
                             })
-                        }
+                        addView(LinearLayout(context).apply {
+                            orientation = VERTICAL
+                            layoutParams = LayoutParams(
+                                MATCH_PARENT,
+                                WRAP_CONTENT
+                            )
+
+                            version.changes.forEach { change ->
+                                addView(LinearLayout(context).apply {
+                                    orientation = HORIZONTAL
+                                    layoutParams = LayoutParams(
+                                        MATCH_PARENT,
+                                        WRAP_CONTENT
+                                    )
+                                    addView(
+                                        TextView(context).apply {
+                                            appearance(
+                                                context,
+                                                R.style.TextAppearance_Material3_BodyMedium
+                                            )
+                                            val spannable = SpannableStringBuilder()
+                                                .append(
+                                                    SpannableString(
+                                                        "${
+                                                            change.type.getName(
+                                                                context
+                                                            )
+                                                        }: "
+                                                    ).also {
+                                                        it.setSpan(
+                                                            StyleSpan(BOLD),
+                                                            0,
+                                                            it.length,
+                                                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                                        )
+                                                    })
+                                                .append(SpannableString(change.change).also {
+                                                    if (change.url != null) {
+                                                        it.setSpan(
+                                                            clickableSpan { customUrlHandler(change.url) },
+                                                            0,
+                                                            it.length,
+                                                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                                        )
+                                                    }
+                                                })
+                                            movementMethod = LinkMovementMethod.getInstance()
+                                            setText(spannable, TextView.BufferType.SPANNABLE)
+                                            layoutParams = LayoutParams(
+                                                WRAP_CONTENT,
+                                                WRAP_CONTENT
+                                            ).apply {
+                                                setMargins(0, top, 0, 0)
+                                            }
+                                        })
+                                })
+                            }
+                        })
                     })
-                })
-            }
+                }
+            })
         })
         .setPositiveButton(android.R.string.ok) { dialog, button ->
             dialog.dismiss()
