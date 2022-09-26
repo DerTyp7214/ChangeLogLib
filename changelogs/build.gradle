@@ -4,22 +4,15 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.github.dertyp7214'
-version = '3.2'
-
 android {
     namespace 'com.dertyp7214.changelogs'
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33
-        compileSdkVersion 33
-        versionCode 7
-        versionName version
-
-        aarMetadata {
-            minCompileSdk = 33
-        }
+        versionCode versionCode
+        versionName versionName
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -51,9 +44,9 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
 
-                groupId = group
+                groupId = groupName
                 artifactId = 'changelogs'
-                version = version
+                version = versionName
             }
         }
     }

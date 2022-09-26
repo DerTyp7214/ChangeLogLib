@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation project(path: ':changelogs')
+    implementation 'com.github.DerTyp7214:ChangeLogLib:3.2'
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
