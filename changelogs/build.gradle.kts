@@ -3,7 +3,11 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.android.library)
     alias(libs.plugins.buildConfig)
+
+    id("maven-publish")
 }
+
+group = "com.github.dertyp7214"
 
 kotlin {
     androidTarget {
